@@ -16,13 +16,16 @@ public class PhoneCodeSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
-        http.antMatcher("/login/phone")
+        http.antMatcher("/accounts/phone/*")
             .authorizeRequests()
-            .antMatchers("/login/phone").permitAll()
+            .antMatchers("/accounts/phone/login").permitAll()
             .anyRequest().authenticated();
         http.httpBasic();
     }
 
+    /**
+     * SecurityFilterChain Authentication config
+     */
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         //            super.configure(auth);
@@ -32,7 +35,7 @@ public class PhoneCodeSecurityConfig extends WebSecurityConfigurerAdapter {
     UserDetailsService phoneUserDetailsService(){
         String code = "123456";
         InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        manager.createUser(User.withUsername("12345678").password(code).authorities("USER").build());
+        manager.createUser(User.withUsername("12345678").password(code).authorities("ROLE_USER").build());
         return manager;
     }
 }

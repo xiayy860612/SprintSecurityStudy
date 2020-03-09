@@ -16,13 +16,16 @@ public class UsernamePasswordSecurityConfig extends WebSecurityConfigurerAdapter
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
-        http.antMatcher("/login/username")
+        http.antMatcher("/accounts/username/*")
             .authorizeRequests()
-            .antMatchers("/login/username").permitAll()
+            .antMatchers("/accounts/username/login").permitAll()
             .anyRequest().authenticated();
         http.httpBasic();
     }
 
+    /**
+     * SecurityFilterChain Authentication config
+     */
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         //            super.configure(auth);
@@ -32,7 +35,7 @@ public class UsernamePasswordSecurityConfig extends WebSecurityConfigurerAdapter
     UserDetailsService usernameUserDetailsService(){
         String finalPassword = "123456";
         InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        manager.createUser(User.withUsername("test").password(finalPassword).authorities("USER").build());
+        manager.createUser(User.withUsername("test").password(finalPassword).authorities("ROLE_USER").build());
         return manager;
     }
 }
