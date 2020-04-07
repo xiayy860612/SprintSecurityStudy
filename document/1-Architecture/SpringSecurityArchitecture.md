@@ -64,34 +64,7 @@ SecurityContextPersistenceFilter会初始化SecurityContextHolder,
 默认SecurityContext是保存在ThreadLocal中, 
 即在当前请求的处理链中都可以通过SecurityContextHolder访问到.
 
-```puml
-@startuml "Essential Models"
-
-interface SecurityContext {
-    Authentication getAuthentication()
-}
-
-interface SecurityContextRepository {
-    SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder);
-    void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response);
-    boolean containsContext(HttpServletRequest request);
-}
-
-SecurityContextRepository --> SecurityContext: manage
-SecurityContextRepository <|.. HttpSessionSecurityContextRepository: web will use
-SecurityContextRepository <|.. NullSecurityContextRepository: restful service will use
-
-interface SecurityContextHolderStrategy
-SecurityContextHolderStrategy <|.. ThreadLocalSecurityContextHolderStrategy: default
-SecurityContextHolderStrategy <|.. InheritableThreadLocalSecurityContextHolderStrategy
-SecurityContextHolderStrategy <|.. GlobalSecurityContextHolderStrategy
-
-class SecurityContextHolder
-SecurityContextHolder --> SecurityContextHolderStrategy: use
-SecurityContextHolder "1" o--> "1" SecurityContext
-
-@enduml
-```
+![](Essential_Models.png)
 
 ## HeaderWriterFilter
 
@@ -125,63 +98,9 @@ SecurityContextHolder "1" o--> "1" SecurityContext
 
 捕获SecurityFilterChain中产生的**未捕获**的AuthenticationException/AccessDeniedException错误
 
-```puml
-@startuml "Core Model"
+![](Core_Model.png)
 
-interface "AuthenticationEntryPoint" as AEP
-note top of AEP
-处理AuthenticationException相关的异常
-end note
-
-interface "AccessDeniedHandler" as ADH
-note top of ADH
-处理AccessDeniedException相关的异常
-end note
-
-class BasicAuthenticationEntryPoint
-AEP <|.. BasicAuthenticationEntryPoint: 401 Unauthorized
-
-class Http403ForbiddenEntryPoint
-AEP <|.. Http403ForbiddenEntryPoint: 403 access deny
-
-
-interface "HttpServletResponse" as HSR {
-    void sendError(int sc, String msg)
-}
-note "setError to forward to ErrorController" as RaiseError
-RaiseError ..> HSR
-RaiseError <.. AEP
-RaiseError <.. ADH
-
-interface "ErrorController" as EC
-class BasicErrorController
-EC <|.. BasicErrorController: /error
-
-@enduml
-```
-
-```puml
-@startuml "Workflow"
-
-control Container
-entity SecurityFilterChain as SFC
-entity AuthenticationEntryPoint as AEP
-entity HttpServletResponse as HSR
-entity AccessDeniedHandler as ADH
-control ErrorController as EC
-
-Container --> SFC: check security
-alt AuthenticationException
-SFC --> AEP: process AuthenticationException
-AEP --> HSR: sendError
-else AccessDeniedException
-SFC --> ADH: process AccessDeniedException
-ADH --> HSR: sendError
-end
-Container --> EC: forward to process /error by default
-
-@enduml
-```
+![](Workflow.png)
 
 - AuthenticationEntryPoint用于处理AuthenticationException相关的认证失败错误, 然后交由ErrorController处理
 - AccessDeniedHandler用于处理AccessDeniedException相关的鉴权失败错误, 然后交由ErrorController处理
@@ -195,27 +114,7 @@ Container --> EC: forward to process /error by default
 
 通常会使用Spring Expression Language (SpEL)来描述ConfigAttribute
 
-```puml
-@startuml "Models"
-
-interface AccessDecisionManager
-
-interface AccessDecisionVoter {
-    int vote(Authentication account, S object, Collection<ConfigAttribute> securityConfig)
-}
-class DefaultWebSecurityExpressionHandler
-AccessDecisionVoter <|.. DefaultWebSecurityExpressionHandler: use SpEL
-
-AccessDecisionManager "1" *--> "*" AccessDecisionVoter
-
-interface Authentication
-AccessDecisionVoter ..> Authentication: use
-
-interface ConfigAttribute
-AccessDecisionVoter ..> ConfigAttribute: use
-
-@enduml
-```
+![](Models.png)
 
 详情会在鉴权章节讲解.
 

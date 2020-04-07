@@ -1,0 +1,30 @@
+@startuml ""
+
+interface AuthenticationProvider {
+    Authentication authenticate(Authentication var1) throws AuthenticationException;
+    boolean supports(Class<?> var1);
+}
+
+class UsernamePasswordAuthenticationToken
+Authentication <|.. UsernamePasswordAuthenticationToken
+
+abstract class AbstractUserDetailsAuthenticationProvider
+AuthenticationProvider <|.. AbstractUserDetailsAuthenticationProvider
+AbstractUserDetailsAuthenticationProvider <--> UsernamePasswordAuthenticationToken: related
+
+interface UserCache
+AbstractUserDetailsAuthenticationProvider "1" *--> "1" UserCache: load/save UserDetails
+
+interface UserDetailsChecker
+AbstractUserDetailsAuthenticationProvider "1" *--> "2" UserDetailsChecker: check UserDetails
+
+class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider
+
+interface UserDetails
+interface UserDetailsService {
+    UserDetails loadUserByUsername(String var1) throws UsernameNotFoundException;
+}
+UserDetailsService --> UserDetails: generate
+DaoAuthenticationProvider *--> UserDetailsService: get UserDetails
+
+@enduml

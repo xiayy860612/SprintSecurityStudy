@@ -1,0 +1,20 @@
+@startuml "Workflow"
+
+control Container
+entity SecurityFilterChain as SFC
+entity AuthenticationEntryPoint as AEP
+entity HttpServletResponse as HSR
+entity AccessDeniedHandler as ADH
+control ErrorController as EC
+
+Container --> SFC: check security
+alt AuthenticationException
+SFC --> AEP: process AuthenticationException
+AEP --> HSR: sendError
+else AccessDeniedException
+SFC --> ADH: process AccessDeniedException
+ADH --> HSR: sendError
+end
+Container --> EC: forward to process /error by default
+
+@enduml

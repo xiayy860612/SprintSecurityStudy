@@ -1,0 +1,32 @@
+@startuml "Core Model"
+
+interface "AuthenticationEntryPoint" as AEP
+note top of AEP
+Process AuthenticationException
+end note
+
+interface "AccessDeniedHandler" as ADH
+note top of ADH
+Process AccessDeniedException
+end note
+
+class BasicAuthenticationEntryPoint
+AEP <|.. BasicAuthenticationEntryPoint: 401 Unauthorized
+
+class Http403ForbiddenEntryPoint
+AEP <|.. Http403ForbiddenEntryPoint: 403 access deny
+
+
+interface "HttpServletResponse" as HSR {
+    void sendError(int sc, String msg)
+}
+note "setError to forward to ErrorController" as RaiseError
+RaiseError ..> HSR
+RaiseError <.. AEP
+RaiseError <.. ADH
+
+interface "ErrorController" as EC
+class BasicErrorController
+EC <|.. BasicErrorController: /error
+
+@enduml
