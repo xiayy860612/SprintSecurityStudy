@@ -1,0 +1,26 @@
+@startuml "Essential Models"
+
+interface SecurityContext {
+    Authentication getAuthentication()
+}
+
+interface SecurityContextRepository {
+    SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder);
+    void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response);
+    boolean containsContext(HttpServletRequest request);
+}
+
+SecurityContextRepository --> SecurityContext: manage
+SecurityContextRepository <|.. HttpSessionSecurityContextRepository: web will use
+SecurityContextRepository <|.. NullSecurityContextRepository: restful service will use
+
+interface SecurityContextHolderStrategy
+SecurityContextHolderStrategy <|.. ThreadLocalSecurityContextHolderStrategy: default
+SecurityContextHolderStrategy <|.. InheritableThreadLocalSecurityContextHolderStrategy
+SecurityContextHolderStrategy <|.. GlobalSecurityContextHolderStrategy
+
+class SecurityContextHolder
+SecurityContextHolder --> SecurityContextHolderStrategy: use
+SecurityContextHolder "1" o--> "1" SecurityContext
+
+@enduml

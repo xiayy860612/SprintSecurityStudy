@@ -1,0 +1,19 @@
+@startuml "Models"
+
+interface AccessDecisionManager
+
+interface AccessDecisionVoter {
+    int vote(Authentication account, S object, Collection<ConfigAttribute> securityConfig)
+}
+class DefaultWebSecurityExpressionHandler
+AccessDecisionVoter <|.. DefaultWebSecurityExpressionHandler: use SpEL
+
+AccessDecisionManager "1" *--> "*" AccessDecisionVoter
+
+interface Authentication
+AccessDecisionVoter ..> Authentication: use
+
+interface ConfigAttribute
+AccessDecisionVoter ..> ConfigAttribute: use
+
+@enduml
