@@ -1,0 +1,42 @@
+@startuml "Authorization Code Flow"
+
+actor User
+actor "http://a.com" as A
+actor "http://b.com" as B
+
+User --> A: access A
+A --> B: <b_host>/oauth/authorize
+note left
+with below params in querystring:
+
+grant_type=authorization_code
+response_type=code
+client_id=<client_id>
+redirect_uri=<redirect_uri>, 获取到authorization_code后的回调地址
+scope=<scope>
+state=<state>
+end note
+
+User --> B: login in login page and grant access to A
+B --> A: access redirect_uri
+note left
+with below params in querystring:
+
+code=<AUTHORIZATION_CODE>
+end note
+
+A --> B: <b_host>/oauth/token
+note left
+with below params in querystring:
+
+client_id=<client_id>
+client_secret=<client_secret>
+grant_type=authorization_code
+code=<AUTHORIZATION_CODE>
+redirect_uri=<redirect_uri>, 获取到access token后的回调地址
+end note
+
+
+
+
+@enduml
